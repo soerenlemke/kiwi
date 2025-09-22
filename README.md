@@ -40,4 +40,4 @@ Contributions are welcome! Please:
 
 ## License
 
-MIT
+MIT [LICENSE](LICENSE)
