@@ -12,22 +12,10 @@
 
 ## What is kiwi?
 
-Kiwi is a simple, educational key–value store project in Go. The goal is to make KV-store fundamentals tangible: in-memory index, append-only log, a small API, and crash recovery on startup.
+Kiwi is a simple, educational key–value store project in Go.
 
 > Why “Kiwi”?
 > A playful nod to “KV” (key–value). Spoken in English (“kay-vee”), it sounds a bit like the german fruit “Kiwi” — and thus a friendly fruit mascot was born.
-
----
-
-## Features (planned)
-
-- In-memory key–value storage
-- Append-only active log
-- Crash recovery on startup (rebuild from log)
-- Minimal API:
-    - put
-    - get
-    - delete
 
 ---
 
@@ -38,11 +26,6 @@ Kiwi is a simple, educational key–value store project in Go. The goal is to ma
     - [ ] put/get/delete
     - [ ] Append-only active log and crash recovery
     - [ ] Simple API
-
-Future ideas (nice-to-have):
-- [ ] Persistence/checkpoints
-- [ ] Concurrency/locking
-- [ ] Metrics/monitoring
 
 ---
 
