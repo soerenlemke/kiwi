@@ -23,7 +23,7 @@ Kiwi is a simple, educational key–value store project in Go.
 
 - v0.1
     - [ ] In-memory KV store
-    - [ ] put/get/delete
+    - [x] set/get/delete
     - [ ] Append-only active log and crash recovery
     - [ ] Simple API
 
