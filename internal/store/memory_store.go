@@ -1,6 +1,7 @@
 package store
 
 import (
+	"errors"
 	"log/slog"
 	"sync"
 )
@@ -21,15 +22,6 @@ func NewInMemoryStore[T any](logger slog.Logger) *InMemoryStore[T] {
 func (s *InMemoryStore[T]) Set(key string, value T) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
-	if s.keyInStore(key) {
-		// todo overwrite value
-
-		s.log.Warn("Key already exists in memory store", "key", key)
-		return nil
-	}
-
-	// todo create new value
 
 	s.data[key] = value
 	s.log.Info("Set value in memory store", "key", key)
@@ -55,11 +47,12 @@ func (s *InMemoryStore[T]) Delete(key string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// todo check if key exists
-	delete(s.data, key)
+	if s.keyInStore(key) {
+		delete(s.data, key)
+		s.log.Info("Deleted value from memory store", "key", key)
+	}
 
-	s.log.Info("Deleted value from memory store", "key", key)
-	return nil
+	return errors.New("key not found")
 }
 
 func (s *InMemoryStore[T]) keyInStore(key string) bool {
