@@ -50,9 +50,11 @@ func (s *InMemoryStore[T]) Delete(key string) error {
 	if s.keyInStore(key) {
 		delete(s.data, key)
 		s.log.Info("Deleted value from memory store", "key", key)
-	}
 
-	return errors.New("key not found")
+		return nil
+	} else {
+		return errors.New("key not found")
+	}
 }
 
 func (s *InMemoryStore[T]) keyInStore(key string) bool {
