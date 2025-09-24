@@ -32,7 +32,7 @@ jobs:
       - name: Run go vet
         run: go vet ./...
       - name: Install staticcheck
-        run: go install honnef.co/go/tools/cmd/staticcheck@2024.1.2
+        run: go install honnef.co/go/tools/cmd/staticcheck@latest
       - name: Run staticcheck
         run: staticcheck ./...
       - name: Run tests
