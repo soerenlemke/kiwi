@@ -2,10 +2,9 @@ name: Audit
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
-
+    branches: [main]
 jobs:
   audit:
     runs-on: ubuntu-22.04
