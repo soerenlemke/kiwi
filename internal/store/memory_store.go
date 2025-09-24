@@ -28,7 +28,7 @@ func (s *InMemoryStore[T]) Set(key string, value T) error {
 	defer s.mu.Unlock()
 
 	s.data[key] = value
-	s.logSetAction("set", key, value)
+	s.rlw.LogSetAction("set", key, value)
 	s.log.Info("Set value in memory store", "key", key)
 
 	return nil
@@ -69,12 +69,4 @@ func (s *InMemoryStore[T]) keyInStore(key string) bool {
 	}
 
 	return false
-}
-
-func (s *InMemoryStore[T]) logSetAction(action string, key string, value T) {
-	s.rlw.LogSetAction(action, key, value)
-}
-
-func (s *InMemoryStore[T]) logDeleteAction(action string, key string) {
-	s.rlw.LogDeleteAction(action, key)
 }
