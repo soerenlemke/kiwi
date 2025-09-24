@@ -1,11 +1,13 @@
 package store
 
-type AllowedTypes interface {
-	~string | ~bool | ~int | ~int64 | ~float64 | ~uint | ~uint64
-}
+import (
+	"kiwi/internal/domain"
+)
 
-type Store[T AllowedTypes] interface {
+type Store[T domain.AllowedTypes] interface {
 	Set(key string, value T) error
 	Get(key string) (T, bool, error) // bool = key exists
 	Delete(key string) error
+	logSetAction(action string, key string, value T)
+	logDeleteAction(action string, key string)
 }
