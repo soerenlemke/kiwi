@@ -33,6 +33,7 @@ func TestNewInMemoryStore(t *testing.T) {
 			},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := NewInMemoryStore[string](tt.args.logger, tt.args.rlw)
@@ -84,6 +85,7 @@ func TestInMemoryStore_Set(t *testing.T) {
 			wantErr: false,
 		},
 	}
+
 	for i := range tests {
 		tt := &tests[i]
 		t.Run(tt.name, func(t *testing.T) {
@@ -181,6 +183,7 @@ func TestInMemoryStore_Delete(t *testing.T) {
 			wantErr: true,
 		},
 	}
+
 	for i := range tests {
 		tt := &tests[i]
 		t.Run(tt.name, func(t *testing.T) {
@@ -241,6 +244,7 @@ func TestInMemoryStore_keyInStore(t *testing.T) {
 			want: false,
 		},
 	}
+
 	for i := range tests {
 		tt := &tests[i]
 		t.Run(tt.name, func(t *testing.T) {

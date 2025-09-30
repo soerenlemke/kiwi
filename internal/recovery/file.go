@@ -13,8 +13,10 @@ func NewFileRecovery[T domain.AllowedTypes](filePath string) *FileRecovery[T] {
 }
 
 func (f FileRecovery[T]) LogSetAction(action string, key string, value T) {
-	//TODO implement me
-	panic("implement me")
+	logEntry := NewLogEntry[T](key, value)
+	println(logEntry)
+
+	// TODO: write to logging queue -> queue writes to file with mutex etc.
 }
 
 func (f FileRecovery[T]) LogDeleteAction(action string, key string) {
