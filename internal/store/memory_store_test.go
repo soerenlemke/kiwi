@@ -27,7 +27,7 @@ func TestNewInMemoryStore(t *testing.T) {
 				recoverer: recovery.NopRlw[string]{},
 			},
 			want: &InMemoryStore[string]{
-				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				logger:    *slog.New(slog.NewTextHandler(io.Discard, nil)),
 				recoverer: recovery.NopRlw[string]{},
 				data:      map[string]string{},
 			},
@@ -74,7 +74,7 @@ func TestInMemoryStore_Set(t *testing.T) {
 		{
 			name: "sets_and_gets_value_from_store",
 			s: &InMemoryStore[string]{
-				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				logger:    *slog.New(slog.NewTextHandler(io.Discard, nil)),
 				recoverer: recovery.NopRlw[string]{},
 				data:      map[string]string{},
 			},
@@ -122,7 +122,7 @@ func TestInMemoryStore_Get(t *testing.T) {
 		{
 			name: "gets_value_from_store",
 			s: &InMemoryStore[string]{
-				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				logger:    *slog.New(slog.NewTextHandler(io.Discard, nil)),
 				recoverer: recovery.NopRlw[string]{},
 				data:      map[string]string{"key": "value"},
 			},
@@ -165,7 +165,7 @@ func TestInMemoryStore_Delete(t *testing.T) {
 		{
 			name: "delete_existing_key_returns_no_error_and_removes_value",
 			s: &InMemoryStore[string]{
-				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				logger:    *slog.New(slog.NewTextHandler(io.Discard, nil)),
 				recoverer: recovery.NopRlw[string]{},
 				data:      map[string]string{"key": "value"},
 			},
@@ -175,7 +175,7 @@ func TestInMemoryStore_Delete(t *testing.T) {
 		{
 			name: "delete_missing_key_returns_error_and_nop",
 			s: &InMemoryStore[string]{
-				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				logger:    *slog.New(slog.NewTextHandler(io.Discard, nil)),
 				recoverer: recovery.NopRlw[string]{},
 				data:      map[string]string{},
 			},
@@ -216,7 +216,7 @@ func TestInMemoryStore_keyInStore(t *testing.T) {
 		{
 			name: "key_absent_returns_false",
 			s: &InMemoryStore[string]{
-				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				logger:    *slog.New(slog.NewTextHandler(io.Discard, nil)),
 				recoverer: recovery.NopRlw[string]{},
 				data:      map[string]string{},
 			},
@@ -226,7 +226,7 @@ func TestInMemoryStore_keyInStore(t *testing.T) {
 		{
 			name: "key_present_returns_true",
 			s: &InMemoryStore[string]{
-				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				logger:    *slog.New(slog.NewTextHandler(io.Discard, nil)),
 				recoverer: recovery.NopRlw[string]{},
 				data:      map[string]string{"a": "x"},
 			},
@@ -236,7 +236,7 @@ func TestInMemoryStore_keyInStore(t *testing.T) {
 		{
 			name: "key_absent_after_prior_delete_is_equivalent_to_absent_case",
 			s: &InMemoryStore[string]{
-				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				logger:    *slog.New(slog.NewTextHandler(io.Discard, nil)),
 				recoverer: recovery.NopRlw[string]{},
 				data:      map[string]string{},
 			},

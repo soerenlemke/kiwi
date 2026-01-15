@@ -3,32 +3,41 @@ package recovery
 import (
 	"context"
 	"kiwi/internal/domain"
-	"kiwi/internal/logqueue"
+	"kiwi/internal/queue"
+	"log/slog"
 	"os"
 	"sync"
 	"time"
 )
 
+const flushInterval = 10 * time.Millisecond
+
 type FileRecovery[T domain.AllowedTypes] struct {
+	logger   *slog.Logger
 	filePath string
-	logQueue logqueue.LogQueue[T]
+	logQueue *queue.LogQueue[T]
 	file     *os.File
 	wg       sync.WaitGroup
 	cancel   context.CancelFunc
 }
 
-func New[T domain.AllowedTypes](filePath string) (*FileRecovery[T], error) {
+func NewFileRecovery[T domain.AllowedTypes](logger *slog.Logger, filePath string) (*FileRecovery[T], error) {
+	if logger == nil {
+		logger = slog.Default()
+	}
+
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return nil, err
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	logQueue := logqueue.New[T]()
+	logQueue := queue.NewLogQueue[T](logger)
 
 	fileRecovery := &FileRecovery[T]{
+		logger:   logger,
 		filePath: filePath,
-		logQueue: *logQueue,
+		logQueue: logQueue,
 		file:     file,
 		cancel:   cancel,
 	}
@@ -67,14 +76,14 @@ func (f *FileRecovery[T]) Close() error {
 }
 
 func (f *FileRecovery[T]) processQueue(ctx context.Context) {
-	defer f.wg.Done()
-	ticker := time.NewTicker(10 * time.Millisecond)
+	ticker := time.NewTicker(flushInterval)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
 			f.flushQueue()
+
 			return
 		case <-ticker.C:
 			f.flushQueue()
@@ -96,16 +105,3 @@ func formatLogEntry[T domain.AllowedTypes](entry *domain.LogEntry[T]) string {
 	// TODO: JSON oder eigenes Format implementieren
 	return entry.TimeStamp.Format(time.RFC3339) + " key=... value=..."
 }
-
-/*
-func formatLogEntry[T domain.AllowedTypes](entry *domain.LogEntry[T]) string {
-    // TODO: JSON oder eigenes Format implementieren
-    return entry.TimeStamp.Format(time.RFC3339) + " key=... value=..."
-}
-
-func (f *FileRecovery[T]) Close() error {
-    f.cancel()
-    f.wg.Wait()
-    return f.file.Close()
-}
-*/

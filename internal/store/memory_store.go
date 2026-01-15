@@ -9,7 +9,7 @@ import (
 )
 
 type InMemoryStore[T domain.AllowedTypes] struct {
-	log       slog.Logger
+	logger    slog.Logger
 	recoverer recovery.Recoverer[T]
 	mu        sync.RWMutex
 	data      map[string]T
@@ -17,7 +17,7 @@ type InMemoryStore[T domain.AllowedTypes] struct {
 
 func NewInMemoryStore[T domain.AllowedTypes](logger slog.Logger, recoverer recovery.Recoverer[T]) *InMemoryStore[T] {
 	return &InMemoryStore[T]{
-		log:       logger,
+		logger:    logger,
 		recoverer: recoverer,
 		data:      make(map[string]T),
 	}
@@ -29,7 +29,7 @@ func (s *InMemoryStore[T]) Set(key string, value T) error {
 
 	s.data[key] = value
 	s.recoverer.LogSetAction("set", key, value)
-	s.log.Info("Set value in memory store", "key", key)
+	s.logger.Info("Set value in memory store", "key", key)
 
 	return nil
 }
@@ -41,10 +41,12 @@ func (s *InMemoryStore[T]) Get(key string) (T, bool, error) {
 	value, ok := s.data[key]
 	if !ok {
 		var zero T
+
 		return zero, false, nil
 	}
 
-	s.log.Info("Retrieved value from memory store", "key", key)
+	s.logger.Info("Retrieved value from memory store", "key", key)
+
 	return value, true, nil
 }
 
@@ -55,12 +57,12 @@ func (s *InMemoryStore[T]) Delete(key string) error {
 	if s.keyInStore(key) {
 		delete(s.data, key)
 		s.recoverer.LogDeleteAction("delete", key)
-		s.log.Info("Deleted value from memory store", "key", key)
+		s.logger.Info("Deleted value from memory store", "key", key)
 
 		return nil
-	} else {
-		return errors.New("key not found")
 	}
+
+	return errors.New("key not found")
 }
 
 func (s *InMemoryStore[T]) keyInStore(key string) bool {

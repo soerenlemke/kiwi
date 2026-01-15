@@ -1,7 +1,8 @@
-package logqueue
+package queue
 
 import (
 	"kiwi/internal/domain"
+	"log/slog"
 )
 
 // LogQueue is a generic FIFO queue for log entries.
@@ -9,13 +10,19 @@ import (
 // Type parameter:
 //   - T: A type that satisfies domain.AllowedTypes.
 type LogQueue[T domain.AllowedTypes] struct {
+	logger *slog.Logger
 	// Entries stores the queued log entries in FIFO order.
 	Entries []domain.LogEntry[T]
 }
 
-// New creates and returns a new, empty LogQueue.
-func New[T domain.AllowedTypes]() *LogQueue[T] {
+// NewLogQueue creates and returns a new, empty LogQueue.
+func NewLogQueue[T domain.AllowedTypes](logger *slog.Logger) *LogQueue[T] {
+	if logger == nil {
+		logger = slog.Default()
+	}
+
 	return &LogQueue[T]{
+		logger:  logger,
 		Entries: make([]domain.LogEntry[T], 0),
 	}
 }
@@ -25,6 +32,7 @@ func New[T domain.AllowedTypes]() *LogQueue[T] {
 // Note: There is currently no queue size limit enforced.
 func (l *LogQueue[T]) Enqueue(entry domain.LogEntry[T]) {
 	l.Entries = append(l.Entries, entry)
+	l.logger.Debug("Enqueued", entry)
 }
 
 // Dequeue removes and returns the first log entry in the queue.
@@ -32,11 +40,15 @@ func (l *LogQueue[T]) Enqueue(entry domain.LogEntry[T]) {
 // It returns nil if the queue is empty.
 func (l *LogQueue[T]) Dequeue() *domain.LogEntry[T] {
 	if l.IsEmpty() {
+		l.logger.Debug("Queue is empty")
+
 		return nil
 	}
 
 	entry := l.Entries[0]
 	l.Entries = l.Entries[1:]
+
+	l.logger.Debug("Dequeued", entry)
 
 	return &entry
 }
