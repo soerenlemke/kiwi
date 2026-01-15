@@ -13,8 +13,8 @@ type LogQueue[T domain.AllowedTypes] struct {
 	Entries []domain.LogEntry[T]
 }
 
-// NewLogQueue creates and returns a new, empty LogQueue.
-func NewLogQueue[T domain.AllowedTypes]() *LogQueue[T] {
+// New creates and returns a new, empty LogQueue.
+func New[T domain.AllowedTypes]() *LogQueue[T] {
 	return &LogQueue[T]{
 		Entries: make([]domain.LogEntry[T], 0),
 	}
@@ -31,7 +31,7 @@ func (l *LogQueue[T]) Enqueue(entry domain.LogEntry[T]) {
 //
 // It returns nil if the queue is empty.
 func (l *LogQueue[T]) Dequeue() *domain.LogEntry[T] {
-	if l.isEmpty() {
+	if l.IsEmpty() {
 		return nil
 	}
 
@@ -41,8 +41,12 @@ func (l *LogQueue[T]) Dequeue() *domain.LogEntry[T] {
 	return &entry
 }
 
-// isEmpty reports whether the queue contains no entries.
-func (l *LogQueue[T]) isEmpty() bool {
+// IsEmpty checks if the LogQueue is empty.
+//
+// Returns:
+//   - true: If the queue has no entries.
+//   - false: If the queue contains one or more entries.
+func (l *LogQueue[T]) IsEmpty() bool {
 	return len(l.Entries) == 0
 }
 

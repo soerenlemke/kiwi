@@ -4,8 +4,10 @@ import (
 	"kiwi/internal/domain"
 )
 
-type Recoverer interface {
+type Recoverer[T domain.AllowedTypes] interface {
 	Recover()
+	RecoverLogReader[T]
+	RecoverLogWriter[T]
 }
 
 type RecoverLogReader[T domain.AllowedTypes] interface {

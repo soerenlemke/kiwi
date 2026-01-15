@@ -11,8 +11,8 @@ import (
 
 func TestNewInMemoryStore(t *testing.T) {
 	type args[T domain.AllowedTypes] struct {
-		logger slog.Logger
-		rlw    recovery.RecoverLogWriter[T]
+		logger    slog.Logger
+		recoverer recovery.Recoverer[T]
 	}
 	type testCase[T domain.AllowedTypes] struct {
 		name string
@@ -23,20 +23,20 @@ func TestNewInMemoryStore(t *testing.T) {
 		{
 			name: "creates_empty_store_and_get_unknown_key_returns_false",
 			args: args[string]{
-				logger: *slog.New(slog.NewTextHandler(io.Discard, nil)),
-				rlw:    recovery.NopRlw[string]{},
+				logger:    *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				recoverer: recovery.NopRlw[string]{},
 			},
 			want: &InMemoryStore[string]{
-				log:  *slog.New(slog.NewTextHandler(io.Discard, nil)),
-				rlw:  recovery.NopRlw[string]{},
-				data: map[string]string{},
+				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				recoverer: recovery.NopRlw[string]{},
+				data:      map[string]string{},
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewInMemoryStore[string](tt.args.logger, tt.args.rlw)
+			got := NewInMemoryStore[string](tt.args.logger, tt.args.recoverer)
 
 			if got == nil {
 				t.Fatalf("NewInMemoryStore() returned nil")
@@ -74,9 +74,9 @@ func TestInMemoryStore_Set(t *testing.T) {
 		{
 			name: "sets_and_gets_value_from_store",
 			s: &InMemoryStore[string]{
-				log:  *slog.New(slog.NewTextHandler(io.Discard, nil)),
-				rlw:  recovery.NopRlw[string]{},
-				data: map[string]string{},
+				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				recoverer: recovery.NopRlw[string]{},
+				data:      map[string]string{},
 			},
 			args: args[string]{
 				key:   "key",
@@ -122,9 +122,9 @@ func TestInMemoryStore_Get(t *testing.T) {
 		{
 			name: "gets_value_from_store",
 			s: &InMemoryStore[string]{
-				log:  *slog.New(slog.NewTextHandler(io.Discard, nil)),
-				rlw:  recovery.NopRlw[string]{},
-				data: map[string]string{"key": "value"},
+				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				recoverer: recovery.NopRlw[string]{},
+				data:      map[string]string{"key": "value"},
 			},
 			args: args{
 				key: "key",
@@ -165,9 +165,9 @@ func TestInMemoryStore_Delete(t *testing.T) {
 		{
 			name: "delete_existing_key_returns_no_error_and_removes_value",
 			s: &InMemoryStore[string]{
-				log:  *slog.New(slog.NewTextHandler(io.Discard, nil)),
-				rlw:  recovery.NopRlw[string]{},
-				data: map[string]string{"key": "value"},
+				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				recoverer: recovery.NopRlw[string]{},
+				data:      map[string]string{"key": "value"},
 			},
 			args:    args{key: "key"},
 			wantErr: false,
@@ -175,9 +175,9 @@ func TestInMemoryStore_Delete(t *testing.T) {
 		{
 			name: "delete_missing_key_returns_error_and_nop",
 			s: &InMemoryStore[string]{
-				log:  *slog.New(slog.NewTextHandler(io.Discard, nil)),
-				rlw:  recovery.NopRlw[string]{},
-				data: map[string]string{},
+				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				recoverer: recovery.NopRlw[string]{},
+				data:      map[string]string{},
 			},
 			args:    args{key: "absent"},
 			wantErr: true,
@@ -216,9 +216,9 @@ func TestInMemoryStore_keyInStore(t *testing.T) {
 		{
 			name: "key_absent_returns_false",
 			s: &InMemoryStore[string]{
-				log:  *slog.New(slog.NewTextHandler(io.Discard, nil)),
-				rlw:  recovery.NopRlw[string]{},
-				data: map[string]string{},
+				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				recoverer: recovery.NopRlw[string]{},
+				data:      map[string]string{},
 			},
 			args: args{key: "missing"},
 			want: false,
@@ -226,9 +226,9 @@ func TestInMemoryStore_keyInStore(t *testing.T) {
 		{
 			name: "key_present_returns_true",
 			s: &InMemoryStore[string]{
-				log:  *slog.New(slog.NewTextHandler(io.Discard, nil)),
-				rlw:  recovery.NopRlw[string]{},
-				data: map[string]string{"a": "x"},
+				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				recoverer: recovery.NopRlw[string]{},
+				data:      map[string]string{"a": "x"},
 			},
 			args: args{key: "a"},
 			want: true,
@@ -236,9 +236,9 @@ func TestInMemoryStore_keyInStore(t *testing.T) {
 		{
 			name: "key_absent_after_prior_delete_is_equivalent_to_absent_case",
 			s: &InMemoryStore[string]{
-				log:  *slog.New(slog.NewTextHandler(io.Discard, nil)),
-				rlw:  recovery.NopRlw[string]{},
-				data: map[string]string{},
+				log:       *slog.New(slog.NewTextHandler(io.Discard, nil)),
+				recoverer: recovery.NopRlw[string]{},
+				data:      map[string]string{},
 			},
 			args: args{key: "tbd"},
 			want: false,

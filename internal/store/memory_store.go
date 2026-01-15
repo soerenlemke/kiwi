@@ -9,17 +9,17 @@ import (
 )
 
 type InMemoryStore[T domain.AllowedTypes] struct {
-	log  slog.Logger
-	rlw  recovery.RecoverLogWriter[T]
-	mu   sync.RWMutex
-	data map[string]T
+	log       slog.Logger
+	recoverer recovery.Recoverer[T]
+	mu        sync.RWMutex
+	data      map[string]T
 }
 
-func NewInMemoryStore[T domain.AllowedTypes](logger slog.Logger, rlw recovery.RecoverLogWriter[T]) *InMemoryStore[T] {
+func NewInMemoryStore[T domain.AllowedTypes](logger slog.Logger, recoverer recovery.Recoverer[T]) *InMemoryStore[T] {
 	return &InMemoryStore[T]{
-		log:  logger,
-		rlw:  rlw,
-		data: make(map[string]T),
+		log:       logger,
+		recoverer: recoverer,
+		data:      make(map[string]T),
 	}
 }
 
@@ -28,7 +28,7 @@ func (s *InMemoryStore[T]) Set(key string, value T) error {
 	defer s.mu.Unlock()
 
 	s.data[key] = value
-	s.rlw.LogSetAction("set", key, value)
+	s.recoverer.LogSetAction("set", key, value)
 	s.log.Info("Set value in memory store", "key", key)
 
 	return nil
@@ -54,7 +54,7 @@ func (s *InMemoryStore[T]) Delete(key string) error {
 
 	if s.keyInStore(key) {
 		delete(s.data, key)
-		s.rlw.LogDeleteAction("delete", key)
+		s.recoverer.LogDeleteAction("delete", key)
 		s.log.Info("Deleted value from memory store", "key", key)
 
 		return nil
