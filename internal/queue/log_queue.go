@@ -32,7 +32,7 @@ func NewLogQueue[T domain.AllowedTypes](logger *slog.Logger) *LogQueue[T] {
 // Note: There is currently no queue size limit enforced.
 func (l *LogQueue[T]) Enqueue(entry domain.LogEntry[T]) {
 	l.Entries = append(l.Entries, entry)
-	l.logger.Debug("Enqueued", entry)
+	l.logger.Debug("Enqueued", "entry", entry)
 }
 
 // Dequeue removes and returns the first log entry in the queue.
@@ -48,7 +48,7 @@ func (l *LogQueue[T]) Dequeue() *domain.LogEntry[T] {
 	entry := l.Entries[0]
 	l.Entries = l.Entries[1:]
 
-	l.logger.Debug("Dequeued", entry)
+	l.logger.Debug("Dequeued", "entry", entry)
 
 	return &entry
 }
