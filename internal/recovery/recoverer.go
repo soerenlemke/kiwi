@@ -2,11 +2,10 @@ package recovery
 
 import (
 	"kiwi/internal/domain"
+	"kiwi/internal/log"
 )
 
 type Recoverer[T domain.AllowedTypes] interface {
 	Recover()
-	ReadLog()
-	LogSetAction(action string, key string, value T)
-	LogDeleteAction(action string, key string)
+	LogAction(action log.Action, key string, value T)
 }

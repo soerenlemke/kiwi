@@ -3,6 +3,7 @@ package recovery
 import (
 	"context"
 	"kiwi/internal/domain"
+	"kiwi/internal/log"
 	"kiwi/internal/queue"
 	"log/slog"
 	"os"
@@ -10,7 +11,10 @@ import (
 	"time"
 )
 
-const flushInterval = 10 * time.Millisecond
+const (
+	flushInterval   = 10 * time.Millisecond
+	defaultFilePerm = os.FileMode(0o644)
+)
 
 type FileRecovery[T domain.AllowedTypes] struct {
 	logger   *slog.Logger
@@ -26,7 +30,7 @@ func NewFileRecovery[T domain.AllowedTypes](logger *slog.Logger, filePath string
 		logger = slog.Default()
 	}
 
-	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, defaultFilePerm)
 	if err != nil {
 		return nil, err
 	}
@@ -49,19 +53,9 @@ func NewFileRecovery[T domain.AllowedTypes](logger *slog.Logger, filePath string
 	return fileRecovery, nil
 }
 
-func (f *FileRecovery[T]) LogSetAction(action string, key string, value T) {
-	logEntry := domain.NewLogEntry[T](key, value)
+func (f *FileRecovery[T]) LogAction(action log.Action, key string, value T) {
+	logEntry := log.NewEntry[T](action, key, value)
 	f.logQueue.Enqueue(logEntry)
-}
-
-func (f *FileRecovery[T]) LogDeleteAction(action string, key string) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (f *FileRecovery[T]) ReadLog() {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (f *FileRecovery[T]) Recover() {
@@ -101,7 +95,12 @@ func (f *FileRecovery[T]) flushQueue() {
 	}
 }
 
-func formatLogEntry[T domain.AllowedTypes](entry *domain.LogEntry[T]) string {
+func formatLogEntry[T domain.AllowedTypes](entry *log.Entry[T]) string {
 	// TODO: JSON oder eigenes Format implementieren
-	return entry.TimeStamp.Format(time.RFC3339) + " key=... value=..."
+	return entry.Timestamp.Format(time.RFC3339) + " key=... value=..."
+}
+
+func (f *FileRecovery[T]) readLog() {
+	//TODO implement me
+	panic("implement me")
 }

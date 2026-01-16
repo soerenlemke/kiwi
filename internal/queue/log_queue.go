@@ -2,6 +2,7 @@ package queue
 
 import (
 	"kiwi/internal/domain"
+	"kiwi/internal/log"
 	"log/slog"
 )
 
@@ -12,7 +13,7 @@ import (
 type LogQueue[T domain.AllowedTypes] struct {
 	logger *slog.Logger
 	// Entries stores the queued log entries in FIFO order.
-	Entries []domain.LogEntry[T]
+	Entries []log.Entry[T]
 }
 
 // NewLogQueue creates and returns a new, empty LogQueue.
@@ -23,14 +24,14 @@ func NewLogQueue[T domain.AllowedTypes](logger *slog.Logger) *LogQueue[T] {
 
 	return &LogQueue[T]{
 		logger:  logger,
-		Entries: make([]domain.LogEntry[T], 0),
+		Entries: make([]log.Entry[T], 0),
 	}
 }
 
 // Enqueue appends a new log entry to the end of the queue.
 //
 // Note: There is currently no queue size limit enforced.
-func (l *LogQueue[T]) Enqueue(entry domain.LogEntry[T]) {
+func (l *LogQueue[T]) Enqueue(entry log.Entry[T]) {
 	l.Entries = append(l.Entries, entry)
 	l.logger.Debug("Enqueued", "entry", entry)
 }
@@ -38,7 +39,7 @@ func (l *LogQueue[T]) Enqueue(entry domain.LogEntry[T]) {
 // Dequeue removes and returns the first log entry in the queue.
 //
 // It returns nil if the queue is empty.
-func (l *LogQueue[T]) Dequeue() *domain.LogEntry[T] {
+func (l *LogQueue[T]) Dequeue() *log.Entry[T] {
 	if l.IsEmpty() {
 		l.logger.Debug("Queue is empty")
 

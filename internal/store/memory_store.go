@@ -3,6 +3,7 @@ package store
 import (
 	"errors"
 	"kiwi/internal/domain"
+	"kiwi/internal/log"
 	"kiwi/internal/recovery"
 	"log/slog"
 	"sync"
@@ -28,7 +29,7 @@ func (s *InMemoryStore[T]) Set(key string, value T) error {
 	defer s.mu.Unlock()
 
 	s.data[key] = value
-	s.recoverer.LogSetAction("set", key, value)
+	s.recoverer.LogAction(log.ActionSet, key, value)
 	s.logger.Info("Set value in memory store", "key", key)
 
 	return nil
@@ -54,15 +55,16 @@ func (s *InMemoryStore[T]) Delete(key string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if s.keyInStore(key) {
-		delete(s.data, key)
-		s.recoverer.LogDeleteAction("delete", key)
-		s.logger.Info("Deleted value from memory store", "key", key)
-
-		return nil
+	value, ok := s.data[key]
+	if !ok {
+		return errors.New("key not found")
 	}
 
-	return errors.New("key not found")
+	delete(s.data, key)
+	s.recoverer.LogAction(log.ActionDelete, key, value)
+	s.logger.Info("Deleted value from memory store", "key", key)
+
+	return nil
 }
 
 func (s *InMemoryStore[T]) keyInStore(key string) bool {
