@@ -61,8 +61,3 @@ func (l *LogQueue[T]) Dequeue() *domain.LogEntry[T] {
 func (l *LogQueue[T]) IsEmpty() bool {
 	return len(l.Entries) == 0
 }
-
-// size returns the current number of entries in the queue.
-func (l *LogQueue[T]) size() int {
-	return len(l.Entries)
-}
